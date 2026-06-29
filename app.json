@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "Retail Pricing Manager",
+    "slug": "retail-pricing-rn",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "retailpricing",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a5fb4"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.retailchain.pricingmanager"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a5fb4"
+      },
+      "package": "com.retailchain.pricingmanager"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-document-picker"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
