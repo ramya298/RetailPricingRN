@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuid } from "../services/uuid";
 import {
   addNotification,
   removeNotification,
@@ -26,11 +27,10 @@ export function useAppStore() {
         title: string,
         message?: string,
       ) => {
-        dispatch(addNotification({ type, title, message }));
+        const id = uuid();
+        dispatch(addNotification({ id, type, title, message }));
         setTimeout(() => {
-          dispatch(
-            removeNotification(getNotificationIdForToast(type, title, message)),
-          );
+          dispatch(removeNotification(id));
         }, 4000);
       },
       removeNotification: (id: string) => dispatch(removeNotification(id)),
@@ -38,14 +38,6 @@ export function useAppStore() {
     }),
     [dispatch, notifications, isSeeded],
   );
-}
-
-function getNotificationIdForToast(
-  type: NotificationType,
-  title: string,
-  message?: string,
-) {
-  return `${type}-${title}-${message ?? ""}`;
 }
 
 export { store };

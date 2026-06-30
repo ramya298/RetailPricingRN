@@ -5,7 +5,6 @@ import {
 } from "@reduxjs/toolkit";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import type { Notification, NotificationType } from "../types";
-import { v4 as uuid } from "../services/uuid";
 
 interface AppState {
   notifications: Notification[];
@@ -24,14 +23,14 @@ const appSlice = createSlice({
     addNotification: (
       state,
       action: PayloadAction<{
+        id: string;
         type: NotificationType;
         title: string;
         message?: string;
       }>,
     ) => {
-      const id = uuid();
       state.notifications.push({
-        id,
+        id: action.payload.id,
         type: action.payload.type,
         title: action.payload.title,
         message: action.payload.message,
