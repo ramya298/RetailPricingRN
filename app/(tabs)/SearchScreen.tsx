@@ -190,14 +190,14 @@ function EditModal({
 
 // ─── Record Row ───────────────────────────────────────────────────────────────
 
-function RecordRow({
+const RecordRow = React.memo(function RecordRow({
   record,
   onEdit,
   onDelete,
 }: {
   record: PricingRecord;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (record: PricingRecord) => void;
+  onDelete: (id: string) => void;
 }) {
   const c = useColors();
   return (
@@ -247,7 +247,10 @@ function RecordRow({
           {record.currency} {record.price.toFixed(2)}
         </Text>
         <View style={{ flexDirection: "row", gap: 4 }}>
-          <TouchableOpacity onPress={onEdit} style={[styles.iconBtn]}>
+          <TouchableOpacity
+            onPress={() => onEdit(record)}
+            style={styles.iconBtn}
+          >
             <Ionicons name="pencil" size={14} color={c.textAccent} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -257,11 +260,15 @@ function RecordRow({
                 "This will soft-delete the record. Continue?",
                 [
                   { text: "Cancel", style: "cancel" },
-                  { text: "Delete", style: "destructive", onPress: onDelete },
+                  {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: () => onDelete(record.id),
+                  },
                 ],
               )
             }
-            style={[styles.iconBtn]}
+            style={styles.iconBtn}
           >
             <Ionicons name="trash" size={14} color={c.textDanger} />
           </TouchableOpacity>
@@ -269,7 +276,7 @@ function RecordRow({
       </View>
     </View>
   );
-}
+});
 
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 
@@ -282,6 +289,25 @@ export default function SearchScreen() {
   const [showStoreAccordion, setShowStoreAccordion] = useState(false);
   const { addNotification } = useAppStore();
   const qc = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteRecord,
+    onSuccess() {
+      qc.invalidateQueries({ queryKey: ["records"] });
+      addNotification("success", "Record deleted");
+    },
+  });
+
+  const handleEdit = useCallback((record: PricingRecord) => {
+    setEditRecord(record);
+  }, []);
+
+  const handleDelete = useCallback(
+    (id: string) => {
+      deleteMutation.mutate(id);
+    },
+    [deleteMutation],
+  );
 
   const query = useQuery({
     queryKey: ["records", applied, page],
@@ -296,14 +322,6 @@ export default function SearchScreen() {
       addNotification("success", "Record updated");
     },
     onError: (e: Error) => addNotification("error", "Update failed", e.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: deleteRecord,
-    onSuccess() {
-      qc.invalidateQueries({ queryKey: ["records"] });
-      addNotification("success", "Record deleted");
-    },
   });
 
   const resetMutation = useMutation({
@@ -504,8 +522,8 @@ export default function SearchScreen() {
         renderItem={({ item }) => (
           <RecordRow
             record={item}
-            onEdit={() => setEditRecord(item)}
-            onDelete={() => deleteMutation.mutate(item.id)}
+            onEdit={() => handleEdit}
+            onDelete={() => handleDelete}
           />
         )}
         ListEmptyComponent={
